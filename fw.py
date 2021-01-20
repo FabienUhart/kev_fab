@@ -1,9 +1,13 @@
 import os
 import pdb
 import time
+import json
+from collections import Counter
 
 #ouvrir fichier
 #parcourir ligne du fichier source
+#extraire les infos importantes et stocker dans un fichier temporaire
+#puis boucler sur le fichier temporaire pour chercher des infos
 #pour chaque ligne
 #  si quator de données existe dans fichier destination
 #    alors incrémenter le compteur
@@ -12,8 +16,9 @@ import time
 class Traitement:
     def __init__(self):
         self.f = []
-        self.teub = []
         self.NbLignes = []
+        self.compteur = 0
+        self.ChaineConcateneeOutput = [] #Utilisée comme stockage temporaire avant comptage des entrées identiques à l'intérieur (couple SrcIP DstIP)
 
     def OpenFile(self,nom_fichier):
         self.f = open(nom_fichier, "r")
@@ -21,52 +26,42 @@ class Traitement:
         self.ftemp = open("temp-file.txt","r+")
         #self.ftemp.seek(0)                        
         #self.ftemp.truncate()
-        
-        
-    def ReadLine(self):
+              
+    def ReadLineFromSourceFileAndSendToList(self):
+      #Lecture du fichier source principal
       self.NbLignes = self.f.readlines()
-      n = 1
-      temp = []
-
+      ChaineSpliteeInput = [] #Utilisée pour assembler les valeurs avant envoie dans la liste
+      
       #parcours du fichier source principal
       for line in self.NbLignes : 
-        n+=1
         #découpe des lignes délimiteur espace par défaut
-        temp = line.split()
-
-        print("ligne37 "+temp[15])
-
-        #écrire infos interessantes dans fichier temporaire
-        self.Info_concat=temp[15]+" "+temp[16]+ "\n"
-        self.ftemp.write(self.Info_concat)
-        #pour chaque ligne, je regarde si occurence existe dans le fichier temporaire
+        ChaineSpliteeInput = line.split()
+        #Récupération des valeurs interessantes et concaténation (SrcIP DstIP)
+        self.Info_concat=ChaineSpliteeInput[15]+" "+ChaineSpliteeInput[16]
+        #self.ftemp.write(self.Info_concat)
+        #Ajout dans la liste de sortie
+        self.ChaineConcateneeOutput.append(self.Info_concat)
+        #print("ajout lignes dans fichier temp "+self.Info_concat)
+        #pour chaque ligne, je regarde si occurence existe dans le 
+      #self.ftemp.close()
+      #print(self.temp2)
+      print("\n taille de la liste : "+str(len(self.ChaineConcateneeOutput))+"\n")
+      
         
-        lines = self.ftemp.readlines()
-        print(lines)
-        for line in lines :
-          if line == self.Info_concat:
-            print("ok")
-        
+    def FindNumberOffOccurence(self):
+      self.c = Counter(self.ChaineConcateneeOutput)
+      print( self.c.items() )
 
-        if temp[15] == "srcip=\"10.110.0.23\"" :
-            print("ok")
-        #for elt in temp :
-         # print(" salut " + elt)
-      self.PrintN(n)
-      lines = self.ftemp.readlines()
-      for linet in lines:
-        print(linet.strip())
-    
-    def PrintN(self,N):
-      print(N)
-
-  
+    def FormattingOutput(self):
+      print (json.dumps(self.c, indent=2))
 
 
 a = Traitement()
 a.OpenFile("import-fw-lite.txt")
-a.ReadLine()
-a.PrintN(42)
+a.ReadLineFromSourceFileAndSendToList()
+a.FindNumberOffOccurence()
+a.FormattingOutput()
+
 
 
 
