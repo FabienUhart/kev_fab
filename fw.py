@@ -37,14 +37,20 @@ class Traitement:
         #découpe des lignes délimiteur espace par défaut
         ChaineSpliteeInput = line.split()
         #Récupération des valeurs interessantes et concaténation (SrcIP DstIP)
-        self.Info_concat=ChaineSpliteeInput[15]+" "+ChaineSpliteeInput[16]
-        #self.ftemp.write(self.Info_concat)
+        #Un peu de mise en forme
+        if ChaineSpliteeInput[17] == "proto=\"6\"": ChaineSpliteeInput[17] = "TCP"
+        ChaineSpliteeInput[10] = str(ChaineSpliteeInput[10]).replace('"',"")
+        ChaineSpliteeInput[15] = str(ChaineSpliteeInput[15]).replace('"',"")
+        ChaineSpliteeInput[16] = str(ChaineSpliteeInput[16]).replace('"',"")
+        ChaineSpliteeInput[23] = str(ChaineSpliteeInput[23]).replace('"',"")
+        self.Info_concat= ChaineSpliteeInput[10]+" "+ChaineSpliteeInput[15]+" "+ChaineSpliteeInput[16]+" "+ChaineSpliteeInput[17]+" "+ChaineSpliteeInput[23]
         #Ajout dans la liste de sortie
         self.ChaineConcateneeOutput.append(self.Info_concat)
         #print("ajout lignes dans fichier temp "+self.Info_concat)
         #pour chaque ligne, je regarde si occurence existe dans le 
       #self.ftemp.close()
       #print(self.temp2)
+      self.ChaineConcateneeOutput.sort()
       print("\n taille de la liste : "+str(len(self.ChaineConcateneeOutput))+"\n")
       
         
